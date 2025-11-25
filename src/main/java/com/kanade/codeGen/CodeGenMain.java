@@ -63,8 +63,8 @@ public class CodeGenMain {
             //设置生成 mapper
             globalConfig.enableMapper();
             globalConfig.enableMapperXml();
-            globalConfig.enableService();
-            globalConfig.enableServiceImpl();
+            //globalConfig.enableService();
+            //globalConfig.enableServiceImpl();
 
             return globalConfig;
         }
