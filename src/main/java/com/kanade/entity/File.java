@@ -14,10 +14,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 文件表 实体类。
+ * 文件表（file_url=域名+file_path动态拼接） 实体类。
  *
  * @author Lenovo
- * @since 2025-11-25
+ * @since 2025-11-26
  */
 @Data
 @Builder
@@ -46,11 +46,6 @@ public class File implements Serializable {
     private String filePath;
 
     /**
-     * 访问URL
-     */
-    private String fileUrl;
-
-    /**
      * 文件大小（字节）
      */
     private Long fileSize;
@@ -61,12 +56,17 @@ public class File implements Serializable {
     private String fileType;
 
     /**
-     * 上传用户ID
+     * 文件MD5（防重复上传）
+     */
+    private String fileMd5;
+
+    /**
+     * 上传用户ID（关联user表）
      */
     private String userId;
 
     /**
-     * 关联分类ID
+     * 关联分类ID（关联file_category表）
      */
     private Integer categoryId;
 
@@ -91,8 +91,23 @@ public class File implements Serializable {
     private Boolean isTop;
 
     /**
-     * 是否审批通过：1是/0否
+     * 文件版本（默认1，更新时递增）
      */
-    private Boolean isApproved;
+    private Integer version;
+
+    /**
+     * 是否删除：1是/0否
+     */
+    private Boolean isDelete;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
 }

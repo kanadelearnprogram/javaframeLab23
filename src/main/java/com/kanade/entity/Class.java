@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
  * 班级表 实体类。
  *
  * @author Lenovo
- * @since 2025-11-25
+ * @since 2025-11-26
  */
 @Data
 @Builder
@@ -41,6 +41,11 @@ public class Class implements Serializable {
     private String className;
 
     /**
+     * 年级（2023）
+     */
+    private String grade;
+
+    /**
      * 所属院系
      */
     private String department;
@@ -51,8 +56,23 @@ public class Class implements Serializable {
     private String teacherId;
 
     /**
+     * 班级状态：正常/已毕业/已解散
+     */
+    private String status;
+
+    /**
+     * 是否删除：1是/0否
+     */
+    private Boolean isDelete;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
 }

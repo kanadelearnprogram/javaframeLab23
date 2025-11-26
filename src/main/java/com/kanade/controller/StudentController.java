@@ -1,167 +1,93 @@
 package com.kanade.controller;
 
 import com.kanade.entity.Student;
+import com.kanade.entity.User;
+import com.kanade.entity.dto.StudentDTO;
+import com.kanade.entity.vo.StudentVo;
+import com.kanade.mapper.ClassMapper;
 import com.kanade.mapper.StudentMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import com.kanade.mapper.UserMapper;
+import com.kanade.util.MyBatisUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-@RestController
-@RequestMapping("/api/student")
+@Controller
+@RequestMapping("/student")
+@Slf4j
 public class StudentController {
 
-    @Autowired
-    private StudentMapper studentMapper;
-
     /**
-     * 单条添加学生
+     * 学生 增删改查
      */
     @PostMapping("/add")
-    public Map<String, Object> addStudent(@RequestBody Student student) {
-        Map<String, Object> response = new HashMap<>();
-        
-        // 检查学号是否已存在
-        Student existingStudent = studentMapper.selectOneByStudentId(student.getStudentId());
-        if (existingStudent != null) {
-            response.put("code", 400);
-            response.put("msg", "学号已存在");
-            response.put("data", null);
-            return response;
-        }
-        
-        // 检查userId是否已存在
-        Student existingUser = studentMapper.selectOneByUserId(student.getUserId());
-        if (existingUser != null) {
-            response.put("code", 400);
-            response.put("msg", "用户ID已存在");
-            response.put("data", null);
-            return response;
-        }
-        
-        // 插入学生
-        studentMapper.insert(student);
-        
-        response.put("code", 200);
-        response.put("msg", "学生添加成功");
-        response.put("data", student);
-        return response;
-    }
+    public String addStudent(@ModelAttribute StudentDTO student) { // 加入 Model 传递数据
+        SqlSession sess = null;
+        try {
+            sess = MyBatisUtil.getSession();
+            StudentMapper studentMapper = sess.getMapper(StudentMapper.class);
+            ClassMapper classMapper = sess.getMapper(ClassMapper.class);
 
-    /**
-     * 批量添加学生
-     */
-    @PostMapping("/batch-add")
-    public Map<String, Object> batchAddStudents(@RequestBody List<Student> students) {
-        Map<String, Object> response = new HashMap<>();
-        
-        int successCount = 0;
-        int failCount = 0;
-        StringBuilder failList = new StringBuilder();
-        
-        for (Student student : students) {
-            // 检查学号是否已存在
-            Student existingStudent = studentMapper.selectOneByStudentId(student.getStudentId());
-            if (existingStudent != null) {
-                failCount++;
-                failList.append(student.getStudentId()).append(": 学号已存在; ");
-                continue;
-            }
-            
-            // 检查userId是否已存在
-            Student existingUser = studentMapper.selectOneByUserId(student.getUserId());
-            if (existingUser != null) {
-                failCount++;
-                failList.append(student.getUserId()).append(": 用户ID已存在; ");
-                continue;
-            }
-            
-            // 插入学生
-            studentMapper.insert(student);
-            successCount++;
-        }
-        
-        Map<String, Object> data = new HashMap<>();
-        data.put("successCount", successCount);
-        data.put("failCount", failCount);
-        data.put("failList", failList.toString());
-        
-        response.put("code", 200);
-        response.put("msg", "批量添加成功");
-        response.put("data", data);
-        return response;
-    }
+            // 1. 校验参数（避免空指针）
+            /*if (student.getStudentId() == null || student.getClassName() == null) {
+                model.addAttribute("errorMsg", "学生ID和班级名不能为空！");
+                return "addStudent"; // 跳转回表单页面，显示错误
+            }*/
 
-    /**
-     * 查询学生列表
-     */
-    @GetMapping("/list")
-    public Map<String, Object> listStudents(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "limit", defaultValue = "10") int limit,
-            @RequestParam(value = "classId", required = false) Integer classId,
-            @RequestParam(value = "studentId", required = false) String studentId,
-            @RequestParam(value = "userName", required = false) String userName,
-            @RequestParam(value = "status", required = false) String status) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        // 这里应该实现分页查询逻辑，目前简化处理
-        List<Student> records = studentMapper.selectAll();
-        
-        // 应该根据条件过滤，这里简化处理
-        Map<String, Object> data = new HashMap<>();
-        data.put("total", records.size());
-        data.put("pages", 1);
-        data.put("current", page);
-        data.put("size", limit);
-        data.put("records", records);
-        
-        response.put("code", 200);
-        response.put("msg", "查询成功");
-        response.put("data", data);
-        return response;
-    }
+            // 2. 查找班级ID（若班级不存在，返回错误）
+            Integer classId = classMapper.searchIdByName(student.getClassName());
+            /*if (classId == null) {
+                model.addAttribute("errorMsg", "班级不存在：" + student.getClassName());
+                return "addStudent";
+            }*/
 
-    /**
-     * 批量删除学生
-     */
-    @PostMapping("/batch-delete")
-    public Map<String, Object> batchDeleteStudents(@RequestBody Map<String, List<String>> request) {
-        Map<String, Object> response = new HashMap<>();
-        
-        List<String> studentIds = request.get("studentIds");
-        int successCount = 0;
-        int failCount = 0;
-        StringBuilder failList = new StringBuilder();
-        
-        for (String studentId : studentIds) {
-            // 检查学生是否存在
-            Student student = studentMapper.selectOneByStudentId(studentId);
-            if (student == null) {
-                failCount++;
-                failList.append("学号=").append(studentId).append(": 学生不存在; ");
-                continue;
+            // 3. 复制属性（原逻辑不变）
+            Student stu = new Student();
+            BeanUtils.copyProperties(student, stu);
+            stu.setClassId(classId);
+            // 注意：表单中已提交 status，无需手动设置为 "normal"（覆盖用户选择）
+            // stu.setStatus("normal"); // 注释掉这行，用表单提交的 status 值
+            stu.setUserId("S" + stu.getStudentId());
+
+            // 4. 插入学生和用户（关键：MyBatis 手动管理事务，必须提交！）
+            studentMapper.addStudent(stu);
+
+            UserMapper userMapper = sess.getMapper(UserMapper.class);
+            User user = new User();
+            BeanUtils.copyProperties(student, user);
+            user.setUsername(stu.getStudentId());
+            user.setPassword("123456");
+            user.setUserId("S" + stu.getStudentId());
+            user.setRole("student");
+            user.setRealName(student.getStudentName());
+            log.info(user.toString());
+            userMapper.addUser(user);
+
+            sess.commit(); // 提交事务（之前遗漏，导致数据不入库）
+
+            // 5. 跳转成功页面，传递学生ID
+            //model.addAttribute("successMsg", "添加成功！学生ID：" + stu.getStudentId());
+            return "success"; // 跳转到 success.jsp
+
+        } catch (Exception e) {
+            // 6. 异常处理：回滚事务+返回错误
+            if (sess != null) {
+                sess.rollback(); // 回滚事务，避免脏数据
             }
-            
-            // 检查学生是否关联成绩，这里简化处理
-            // 实际应用中需要检查关联关系
-            
-            // 删除学生
-            studentMapper.deleteById(studentId);
-            successCount++;
+            e.printStackTrace(); // 打印异常（方便排查）
+            //model.addAttribute("errorMsg", "添加失败：" + e.getMessage());
+            return "addStudent"; // 跳转回表单页面
+
+        } finally {
+            // 7. 关闭 SqlSession（释放资源）
+            if (sess != null) {
+                sess.close();
+            }
         }
-        
-        Map<String, Object> data = new HashMap<>();
-        data.put("successCount", successCount);
-        data.put("failCount", failCount);
-        data.put("failList", failList.toString());
-        
-        response.put("code", 200);
-        response.put("msg", "批量删除成功");
-        response.put("data", data);
-        return response;
     }
 }

@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
  * 个人空间表 实体类。
  *
  * @author Lenovo
- * @since 2025-11-25
+ * @since 2025-11-26
  */
 @Data
 @Builder
@@ -61,7 +61,12 @@ public class Space implements Serializable {
     private Long applySize;
 
     /**
-     * 审批管理员ID
+     * 申请时间
+     */
+    private LocalDateTime applyTime;
+
+    /**
+     * 审批管理员ID（关联user表）
      */
     private String approveAdminId;
 
@@ -69,5 +74,25 @@ public class Space implements Serializable {
      * 审批日期
      */
     private LocalDateTime approveDate;
+
+    /**
+     * 审批备注
+     */
+    private String remark;
+
+    /**
+     * 是否删除：1是/0否
+     */
+    private Boolean isDelete;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
 }

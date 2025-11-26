@@ -15,10 +15,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 成绩表 实体类。
+ * 成绩表（总评成绩/及格状态通过代码计算更新） 实体类。
  *
  * @author Lenovo
- * @since 2025-11-25
+ * @since 2025-11-26
  */
 @Data
 @Builder
@@ -42,7 +42,7 @@ public class Score implements Serializable {
     private String studentId;
 
     /**
-     * 关联课程ID
+     * 关联课程ID（关联course表）
      */
     private Integer courseId;
 
@@ -67,8 +67,23 @@ public class Score implements Serializable {
     private Boolean isPass;
 
     /**
-     * 录入时间
+     * 最后修改人ID（关联user表）
      */
-    private LocalDateTime inputTime;
+    private String updateUserId;
+
+    /**
+     * 是否删除：1是/0否
+     */
+    private Boolean isDelete;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
 }

@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
  * 关注表 实体类。
  *
  * @author Lenovo
- * @since 2025-11-25
+ * @since 2025-11-26
  */
 @Data
 @Builder
@@ -41,7 +41,12 @@ public class Follow implements Serializable {
     private String followerId;
 
     /**
-     * 被关注者ID（注册用户）
+     * 关注者类型：注册用户/游客
+     */
+    private String followerType;
+
+    /**
+     * 被关注者ID（关联user表注册用户）
      */
     private String followedId;
 
@@ -49,5 +54,30 @@ public class Follow implements Serializable {
      * 关注时间
      */
     private LocalDateTime followTime;
+
+    /**
+     * 取消关注时间
+     */
+    private LocalDateTime unfollowTime;
+
+    /**
+     * 关注时长（天，取消关注后计算）
+     */
+    private Integer followDuration;
+
+    /**
+     * 是否删除：1是/0否
+     */
+    private Boolean isDelete;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
 }

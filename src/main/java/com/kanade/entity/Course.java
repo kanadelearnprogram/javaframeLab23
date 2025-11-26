@@ -5,6 +5,7 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import java.io.Serial;
 
@@ -14,10 +15,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 课程表（权重之和=1.0需通过代码校验） 实体类。
+ * 课程表 实体类。
  *
  * @author Lenovo
- * @since 2025-11-25
+ * @since 2025-11-26
  */
 @Data
 @Builder
@@ -51,7 +52,7 @@ public class Course implements Serializable {
     private BigDecimal examRatio;
 
     /**
-     * 关联班级ID
+     * 关联班级ID（关联class表）
      */
     private Integer classId;
 
@@ -59,5 +60,25 @@ public class Course implements Serializable {
      * 授课教师ID（关联user表）
      */
     private String teacherId;
+
+    /**
+     * 课程状态：未开始/进行中/已结束
+     */
+    private String status;
+
+    /**
+     * 是否删除：1是/0否
+     */
+    private Boolean isDelete;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
 }

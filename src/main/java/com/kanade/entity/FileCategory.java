@@ -4,6 +4,7 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import java.io.Serial;
 
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
  * 文件分类表 实体类。
  *
  * @author Lenovo
- * @since 2025-11-25
+ * @since 2025-11-26
  */
 @Data
 @Builder
@@ -35,7 +36,7 @@ public class FileCategory implements Serializable {
     private Integer categoryId;
 
     /**
-     * 分类名称
+     * 分类名称（文档/图片/相册/音乐）
      */
     private String categoryName;
 
@@ -43,5 +44,25 @@ public class FileCategory implements Serializable {
      * 分类描述
      */
     private String categoryDesc;
+
+    /**
+     * 排序权重（越大越靠前）
+     */
+    private Integer sortOrder;
+
+    /**
+     * 是否删除：1是/0否
+     */
+    private Boolean isDelete;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
 }
