@@ -1,26 +1,18 @@
 package com.kanade.mapper;
 
-import com.mybatisflex.core.BaseMapper;
 import com.kanade.entity.Student;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 
-import java.util.List;
-
-/**
- * 学生表（教务专用，关联用户表获取基础信息） 映射层。
- *
- * @author Lenovo
- * @since 2025-11-25
- */
-public interface StudentMapper extends BaseMapper<Student> {
+@Mapper
+public interface StudentMapper {
+    @Insert("INSERT INTO student(student_id, user_id, class_id, status, is_delete, create_time, update_time) " +
+            "VALUES(#{studentId}, #{userId}, #{classId}, #{status}, #{isDelete}, #{createTime}, #{updateTime})")
+    @Options(useGeneratedKeys = true, keyProperty = "studentId")
+    boolean addStudent(Student stu);
     
     @Select("SELECT * FROM student WHERE student_id = #{studentId}")
-    Student selectOneByStudentId(@Param("studentId") String studentId);
-    
-    @Select("SELECT * FROM student WHERE user_id = #{userId}")
-    Student selectOneByUserId(@Param("userId") String userId);
-    
-    @Select("SELECT * FROM student")
-    List<Student> selectAll();
+    Student selectByStudentId(String studentId);
 }
