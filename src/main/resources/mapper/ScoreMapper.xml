@@ -4,4 +4,280 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kanade.mapper.ScoreMapper">
 
+    <resultMap id="StudentCourseVoMap" type="com.kanade.entity.vo.StudentCourseVO">
+        <result property="courseId" column="course_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="teacherName" column="teacher_name"/>
+        <result property="teacherId" column="teacher_id"/>
+        <result property="className" column="class_name"/>
+        <result property="grade" column="grade"/>
+        <result property="courseStatus" column="course_status"/>
+        <result property="dailyRatio" column="daily_ratio"/>
+        <result property="examRatio" column="exam_ratio"/>
+        <result property="selectTime" column="select_time"/>
+    </resultMap>
+
+    <resultMap id="StudentScoreVoMap" type="com.kanade.entity.vo.StudentScoreVO">
+        <result property="scoreId" column="score_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="dailyScore" column="daily_score"/>
+        <result property="examScore" column="exam_score"/>
+        <result property="totalScore" column="total_score"/>
+        <result property="isPass" column="is_pass"/>
+        <result property="dailyRatio" column="daily_ratio"/>
+        <result property="examRatio" column="exam_ratio"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap id="TeacherScoreVoMap" type="com.kanade.entity.vo.TeacherScoreVO">
+        <result property="scoreId" column="score_id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="studentName" column="student_name"/>
+        <result property="courseId" column="course_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="dailyScore" column="daily_score"/>
+        <result property="examScore" column="exam_score"/>
+        <result property="totalScore" column="total_score"/>
+        <result property="isPass" column="is_pass"/>
+        <result property="updaterName" column="updater_name"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <resultMap id="FailedStudentVoMap" type="com.kanade.entity.vo.FailedStudentVO">
+        <result property="studentId" column="student_id"/>
+        <result property="studentName" column="student_name"/>
+        <result property="dailyScore" column="daily_score"/>
+        <result property="examScore" column="exam_score"/>
+        <result property="totalScore" column="total_score"/>
+    </resultMap>
+
+    <select id="countStudentCourses" resultType="long">
+        select count(1)
+        from score s
+                 join course c on s.course_id = c.course_id
+        where s.student_id = #{studentId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (c.is_delete = 0 or c.is_delete is null)
+    </select>
+
+    <select id="queryStudentCourses" resultMap="StudentCourseVoMap">
+        select c.course_id,
+               c.course_name,
+               c.teacher_id,
+               u.real_name as teacher_name,
+               cls.class_name,
+               cls.grade,
+               c.status as course_status,
+               c.daily_ratio,
+               c.exam_ratio,
+               s.create_time as select_time
+        from score s
+                 join course c on s.course_id = c.course_id
+                 join class cls on c.class_id = cls.class_id
+                 join user u on c.teacher_id = u.user_id
+        where s.student_id = #{studentId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (c.is_delete = 0 or c.is_delete is null)
+        order by ${orderColumn} ${orderDir}
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="countStudentScores" resultType="long">
+        select count(1)
+        from score s
+                 join course c on s.course_id = c.course_id
+        where s.student_id = #{studentId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (c.is_delete = 0 or c.is_delete is null)
+    </select>
+
+    <select id="queryStudentScores" resultMap="StudentScoreVoMap">
+        select s.score_id,
+               s.course_id,
+               c.course_name,
+               s.daily_score,
+               s.exam_score,
+               s.total_score,
+               s.is_pass,
+               c.daily_ratio,
+               c.exam_ratio,
+               s.update_time
+        from score s
+                 join course c on s.course_id = c.course_id
+        where s.student_id = #{studentId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (c.is_delete = 0 or c.is_delete is null)
+        order by ${orderColumn} ${orderDir}
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="countTeacherScores" resultType="long">
+        select count(1)
+        from score s
+                 join course c on s.course_id = c.course_id
+        where c.teacher_id = #{teacherId}
+          and c.class_id = #{classId}
+          and c.course_id = #{courseId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (c.is_delete = 0 or c.is_delete is null)
+    </select>
+
+    <select id="queryTeacherScores" resultMap="TeacherScoreVoMap">
+        select s.score_id,
+               s.student_id,
+               stuUser.real_name as student_name,
+               s.course_id,
+               c.course_name,
+               s.daily_score,
+               s.exam_score,
+               s.total_score,
+               s.is_pass,
+               updUser.real_name as updater_name,
+               s.update_time
+        from score s
+                 join course c on s.course_id = c.course_id
+                 join student stu on s.student_id = stu.student_id
+                 join user stuUser on stu.user_id = stuUser.user_id
+                 left join user updUser on s.update_user_id = updUser.user_id
+        where c.teacher_id = #{teacherId}
+          and c.class_id = #{classId}
+          and c.course_id = #{courseId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (c.is_delete = 0 or c.is_delete is null)
+        order by ${orderColumn} ${orderDir}
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="selectScoreForTeacher" resultMap="TeacherScoreVoMap">
+        select s.score_id,
+               s.student_id,
+               stuUser.real_name as student_name,
+               s.course_id,
+               c.course_name,
+               s.daily_score,
+               s.exam_score,
+               s.total_score,
+               s.is_pass,
+               updUser.real_name as updater_name,
+               s.update_time
+        from score s
+                 join course c on s.course_id = c.course_id
+                 join student stu on s.student_id = stu.student_id
+                 join user stuUser on stu.user_id = stuUser.user_id
+                 left join user updUser on s.update_user_id = updUser.user_id
+        where c.teacher_id = #{teacherId}
+          and s.score_id = #{scoreId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (c.is_delete = 0 or c.is_delete is null)
+        limit 1
+    </select>
+
+    <update id="updateScoreValues" parameterType="com.kanade.entity.Score">
+        update score
+        set daily_score = #{dailyScore},
+            exam_score = #{examScore},
+            total_score = #{totalScore},
+            is_pass = #{isPass},
+            update_user_id = #{updateUserId},
+            update_time = current_timestamp
+        where score_id = #{scoreId}
+    </update>
+
+    <insert id="upsertScore" parameterType="com.kanade.entity.Score">
+        insert into score (score_id,
+                           student_id,
+                           course_id,
+                           daily_score,
+                           exam_score,
+                           total_score,
+                           is_pass,
+                           update_user_id,
+                           is_delete,
+                           create_time,
+                           update_time)
+        values (#{scoreId},
+                #{studentId},
+                #{courseId},
+                #{dailyScore},
+                #{examScore},
+                #{totalScore},
+                #{isPass},
+                #{updateUserId},
+                0,
+                coalesce(#{createTime}, current_timestamp),
+                current_timestamp)
+        on duplicate key update
+            daily_score = values(daily_score),
+            exam_score = values(exam_score),
+            total_score = values(total_score),
+            is_pass = values(is_pass),
+            update_user_id = values(update_user_id),
+            update_time = current_timestamp,
+            is_delete = 0
+    </insert>
+
+    <select id="listScoresForExport" resultMap="TeacherScoreVoMap">
+        select s.score_id,
+               s.student_id,
+               stuUser.real_name as student_name,
+               s.course_id,
+               c.course_name,
+               s.daily_score,
+               s.exam_score,
+               s.total_score,
+               s.is_pass,
+               updUser.real_name as updater_name,
+               s.update_time
+        from score s
+                 join course c on s.course_id = c.course_id
+                 join student stu on s.student_id = stu.student_id
+                 join user stuUser on stu.user_id = stuUser.user_id
+                 left join user updUser on s.update_user_id = updUser.user_id
+        where c.teacher_id = #{teacherId}
+          and c.class_id = #{classId}
+          and c.course_id = #{courseId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (c.is_delete = 0 or c.is_delete is null)
+        order by s.total_score desc
+    </select>
+
+    <select id="queryScoreStats" resultType="com.kanade.entity.vo.ScoreStatsVO">
+        select count(1)                                 as totalCount,
+               sum(case when s.is_pass = 1 then 1 else 0 end) as passCount,
+               sum(case when s.is_pass = 0 then 1 else 0 end) as failCount,
+               case
+                   when count(1) = 0 then 0
+                   else round(sum(case when s.is_pass = 1 then 1 else 0 end) / count(1) * 100, 2)
+                   end                                    as passRate,
+               round(avg(s.total_score), 1)               as averageScore,
+               max(s.total_score)                         as maxScore,
+               min(s.total_score)                         as minScore
+        from score s
+                 join course c on s.course_id = c.course_id
+        where c.teacher_id = #{teacherId}
+          and c.class_id = #{classId}
+          and c.course_id = #{courseId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (c.is_delete = 0 or c.is_delete is null)
+    </select>
+
+    <select id="listFailedStudents" resultMap="FailedStudentVoMap">
+        select s.student_id,
+               stuUser.real_name as student_name,
+               s.daily_score,
+               s.exam_score,
+               s.total_score
+        from score s
+                 join course c on s.course_id = c.course_id
+                 join student stu on s.student_id = stu.student_id
+                 join user stuUser on stu.user_id = stuUser.user_id
+        where c.teacher_id = #{teacherId}
+          and c.class_id = #{classId}
+          and c.course_id = #{courseId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (c.is_delete = 0 or c.is_delete is null)
+          and (s.is_pass = 0 or s.is_pass is null)
+        order by s.total_score desc
+    </select>
 </mapper>

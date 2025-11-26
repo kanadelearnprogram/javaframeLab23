@@ -4,4 +4,40 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kanade.mapper.ClassMapper">
 
+    <resultMap id="TeacherClassVoMap" type="com.kanade.entity.vo.TeacherClassVO">
+        <result property="classId" column="class_id"/>
+        <result property="className" column="class_name"/>
+        <result property="grade" column="grade"/>
+        <result property="department" column="department"/>
+        <result property="status" column="status"/>
+        <result property="studentCount" column="student_count"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectById" resultType="com.kanade.entity.Class">
+        select class_id, class_name, grade, department, teacher_id, status,
+               is_delete, create_time, update_time
+        from class
+        where class_id = #{classId}
+          and is_delete = 0
+    </select>
+
+    <select id="listClassesByTeacher" resultMap="TeacherClassVoMap">
+        select c.class_id,
+               c.class_name,
+               c.grade,
+               c.department,
+               c.status,
+               c.create_time,
+               (
+                   select count(1)
+                   from student s
+                   where s.class_id = c.class_id
+                     and (s.is_delete = 0 or s.is_delete is null)
+               ) as student_count
+        from class c
+        where c.teacher_id = #{teacherId}
+          and (c.is_delete = 0 or c.is_delete is null)
+        order by c.create_time desc
+    </select>
 </mapper>

@@ -19,5 +19,11 @@
         <mapper resource="mapper/UserMapper.xml" />
         <mapper resource="mapper/StudentMapper.xml" />
         <mapper resource="mapper/ClassMapper.xml" />
+        <mapper resource="mapper/CourseMapper.xml" />
+        <mapper resource="mapper/ScoreMapper.xml" />
+        <mapper resource="mapper/FileMapper.xml" />
+        <mapper resource="mapper/FileCategoryMapper.xml" />
+        <mapper resource="mapper/SpaceMapper.xml" />
+        <mapper resource="mapper/FollowMapper.xml" />
     </mappers>
 </configuration>

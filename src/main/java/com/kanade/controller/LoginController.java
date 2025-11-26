@@ -1,7 +1,7 @@
 package com.kanade.controller;
 
+import com.kanade.constant.Constant;
 import com.kanade.entity.User;
-import com.kanade.entity.UserMyBatis;
 import com.kanade.mapper.UserMapper;
 import com.kanade.util.MyBatisUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,34 +21,25 @@ public class LoginController {
     
     @PostMapping("/login")
     public String login(HttpServletRequest request,
-                       @RequestParam("password") String password, 
+                       @RequestParam("password") String password,
                        @RequestParam("username") String username){
         SqlSession sess = null;
         try {
             sess = MyBatisUtil.getSession();
             UserMapper userMapper = sess.getMapper(UserMapper.class);
             User user = userMapper.selectUserName(username);
-            if (user == null){
-                throw new RuntimeException("username");
-            }
-            if (!user.getPassword().equals(password)) {
-                throw new RuntimeException("password is wrong");
+            if (user == null || !user.getPassword().equals(password)) {
+                return "redirect:/login?error=invalid";
             }
 
-            request.getSession().setAttribute("userLogin",user);
+            request.getSession().setAttribute(Constant.LOGIN_USER, user);
             String role = user.getRole();
-            switch (role){
-                case "admin" ->{
-                    break;
-                }
-                case "student"->{
-                    break;
-                }
-                case "teacher" ->{
-
-                }
-            }
-            return "redirect:/index.jsp";
+            return switch (role) {
+                case "admin" -> "redirect:/admin/index.jsp";
+                case "student" -> "redirect:/student/index.jsp";
+                case "teacher" -> "redirect:/teacher/index.jsp";
+                default -> "redirect:/index.jsp";
+            };
         } finally {
             if (sess != null) {
                 sess.close();

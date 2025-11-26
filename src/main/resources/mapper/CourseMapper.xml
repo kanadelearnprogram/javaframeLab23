@@ -4,4 +4,55 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kanade.mapper.CourseMapper">
 
+    <select id="selectById" resultType="com.kanade.entity.Course">
+        select course_id,
+               course_name,
+               daily_ratio,
+               exam_ratio,
+               class_id,
+               teacher_id,
+               status,
+               is_delete,
+               create_time,
+               update_time
+        from course
+        where course_id = #{courseId}
+          and (is_delete = 0 or is_delete is null)
+    </select>
+
+    <select id="selectOwnedCourse" resultType="com.kanade.entity.Course">
+        select course_id,
+               course_name,
+               daily_ratio,
+               exam_ratio,
+               class_id,
+               teacher_id,
+               status,
+               is_delete,
+               create_time,
+               update_time
+        from course
+        where course_id = #{courseId}
+          and class_id = #{classId}
+          and teacher_id = #{teacherId}
+          and (is_delete = 0 or is_delete is null)
+    </select>
+
+    <select id="listByTeacherAndClass" resultType="com.kanade.entity.Course">
+        select course_id,
+               course_name,
+               daily_ratio,
+               exam_ratio,
+               class_id,
+               teacher_id,
+               status,
+               is_delete,
+               create_time,
+               update_time
+        from course
+        where teacher_id = #{teacherId}
+          and class_id = #{classId}
+          and (is_delete = 0 or is_delete is null)
+        order by course_name asc
+    </select>
 </mapper>

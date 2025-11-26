@@ -4,4 +4,14 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kanade.mapper.StudentMapper">
 
+    <select id="listBasicInfoByClass" resultType="com.kanade.entity.vo.StudentBasicVO">
+        select s.student_id as studentId,
+               u.real_name as realName
+        from student s
+                 join user u on s.user_id = u.user_id
+        where s.class_id = #{classId}
+          and (s.is_delete = 0 or s.is_delete is null)
+          and (u.is_delete = 0 or u.is_delete is null)
+        order by s.student_id asc
+    </select>
 </mapper>
